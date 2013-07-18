@@ -1,0 +1,6 @@
+Inactive
+Loading
+Ready
+Pending
+Running
+Finished
