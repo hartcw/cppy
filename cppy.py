@@ -43,6 +43,8 @@ class options:
 
 class context:
     indent     = ''
+    srcdir     = ''
+    dstdir     = ''
     buffer     = None
     first      = True
     variables  = dict()
@@ -142,9 +144,17 @@ def match_without_indent(match):
             code += m
     return execute(code, indent, True)
 
+def srcdir():
+    return context.srcdir
+
+def dstdir():
+    return context.dstdir
+
 def expand(input='', output='', type='auto', newline=None):
     log_debug('expand input=' + input + ' output=' + output)
     cwd = os.getcwd()
+    prev_srcdir = context.srcdir
+    prev_dstdir = context.dstdir
     if newline == None:
         newline = os.linesep
     if output == '':
@@ -156,10 +166,12 @@ def expand(input='', output='', type='auto', newline=None):
         if not os.path.exists(os.path.dirname(output)):
             os.mkdir(os.path.dirname(output))
         dst = open(output, 'wt', newline=newline)
+        context.dstdir = os.path.abspath(os.path.dirname(output))
     if input == '':
         src = sys.stdin
     else:
         src = open(input, 'rt')
+        context.srcdir = os.path.abspath(os.path.dirname(input))
         dirname = os.path.dirname(input)
         if dirname != '':
             os.chdir(dirname)
@@ -174,6 +186,8 @@ def expand(input='', output='', type='auto', newline=None):
         contents = regex.sub(match_function, contents)
     dst.write(contents)
     os.chdir(cwd)
+    context.srcdir = prev_srcdir
+    context.dstdir = prev_dstdir
     if output != '':
         dst.close()
     if input != '':
