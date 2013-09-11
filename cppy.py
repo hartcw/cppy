@@ -31,15 +31,9 @@ import io
 import os
 import re
 import sys
-import argparse
+import optparse
 import platform
 import builtins
-
-class options:
-    input  = ''
-    output = ''
-    type   = 'auto'
-    debug  = False
 
 class context:
     indent     = ''
@@ -49,19 +43,26 @@ class context:
     first      = True
     variables  = dict()
     colour_log = platform.system() != 'Windows'
+    debug      = False
 
 def parse_options():
-    parser = argparse.ArgumentParser('cppy')
-    parser.add_argument('-i', '--input',
-                        help='Specify the input file (defaults to stdin)')
-    parser.add_argument('-o', '--output',
-                        help='Specify the output file (defaults to stdout)')
-    parser.add_argument('-t', '--type',
-                        choices=['c', 'xml', 'auto'],
-                        help='Set the type of embedded comment to match and expand (defaults to auto)')
-    parser.add_argument('-d', '--debug', action='store_true',
-                        help='Enable debug information')
-    parser.parse_args(namespace=options)
+    parser = optparse.OptionParser('cppy')
+    parser.add_option('-i', '--input',
+                      default='',
+                      help='Specify the input file (defaults to stdin)')
+    parser.add_option('-o', '--output',
+                      default='',
+                      help='Specify the output file (defaults to stdout)')
+    parser.add_option('-t', '--type',
+                      default='auto',
+                      choices=['c', 'xml', 'auto'],
+                      help='Set the type of embedded comment to match and expand (defaults to auto)')
+    parser.add_option('-d', '--debug',
+                      default=False,
+                      action='store_true',
+                      help='Enable debug information')
+    (options, args) = parser.parse_args()
+    return options
 
 def log_set_colour(code):
     if context.colour_log:
@@ -89,7 +90,7 @@ def log_message(message):
     log_unset_colour()
 
 def log_debug(message):
-    if options.debug:
+    if context.debug:
         log_set_colour(32)
         print('DEBUG:', message, file=sys.stdout)
         log_unset_colour()
@@ -194,7 +195,8 @@ def expand(input='', output='', type='auto', newline=None):
         src.close()
 
 def main():
-    parse_options()
+    options = parse_options()
+    context.debug = options.debug
     expand(options.input, options.output, options.type)
 
 if __name__ == '__main__':
