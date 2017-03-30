@@ -166,12 +166,12 @@ def expand(input='', output='', type='auto', newline=None):
     else:
         if not os.path.exists(os.path.dirname(output)):
             os.mkdir(os.path.dirname(output))
-        dst = open(output, 'wt', newline=newline)
+        dst = open(output, 'w', encoding='utf-8', newline=newline)
         context.dstdir = os.path.abspath(os.path.dirname(output))
     if input == '':
         src = sys.stdin
     else:
-        src = open(input, 'rt')
+        src = io.open(input, 'r', encoding='utf-8')
         context.srcdir = os.path.abspath(os.path.dirname(input))
         dirname = os.path.dirname(input)
         if dirname != '':
